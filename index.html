@@ -71,6 +71,16 @@ tailwind.config = {
   .legend-item { display: inline-flex; align-items: center; gap: 6px; }
   .legend-swatch { width: 14px; height: 14px; border-radius: 3px; border: 1.5px solid; flex-shrink: 0; }
 
+  /* Sequence badge legend */
+  .badge-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 11px; line-height: 1.6; }
+  .badge-row + .badge-row { margin-top: 4px; }
+  .badge-label { font-size: 10px; letter-spacing: 0.08em; color: #5a6478; padding: 2px 6px; background: #fff; border-radius: 4px; border: 1px solid #d8d2c4; margin-right: 4px; min-width: 56px; text-align: center; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11px; border: 1px solid; line-height: 1.5; }
+  .badge-a { background: #fdf4e3; border-color: #d29957; color: #6a4515; }
+  .badge-d { background: #e8f0fa; border-color: #3a86c7; color: #1e5aa8; }
+  .badge-p { background: #e8f1e4; border-color: #6b9966; color: #2d5223; }
+  .seq-legend { background: #fff; border: 1px solid #d8d2c4; border-radius: 8px; padding: 10px 14px; margin-bottom: 10px; }
+
   /* Mermaid overrides for subgraph (swim lanes) */
   .diagram-box .cluster rect { rx: 6; ry: 6; }
   /* Sequence diagram arrow visibility: thicker strokes, sharper contrast */
@@ -129,6 +139,15 @@ tailwind.config = {
         </div>
         <p class="text-[11px] text-sub mt-2 leading-relaxed">実線矢印 ＝ 順序／点線矢印 ＝ 役割間メッセージ（FAX・電話など）</p>
       </div>
+    </div>
+
+    <!-- Sequence badge legend -->
+    <div class="mt-6 pt-5 border-t border-line">
+      <div class="text-[11px] tracking-[0.15em] text-sub font-medium mb-2">シーケンス図のバッジ ／ DX 観点での区分（推定）</div>
+      <div class="badge-row"><span class="badge-label">アナログ</span><span class="badge badge-a">📠 FAX</span><span class="badge badge-a">📞 電話</span><span class="badge badge-a">📋 紙台帳・書類</span></div>
+      <div class="badge-row"><span class="badge-label">デジタル</span><span class="badge badge-d">💻 PC 入力</span></div>
+      <div class="badge-row"><span class="badge-label">現場作業</span><span class="badge badge-p">🚌 車両運行</span><span class="badge badge-p">🔧 整備</span><span class="badge badge-p">🩺 診断</span><span class="badge badge-p">🧴 清掃・対策</span><span class="badge badge-p">👤 対面・口頭</span></div>
+      <p class="text-[11px] text-sub mt-2 leading-relaxed">※ 原本資料（2020-2021）からの推定区分。FAX・電話・紙台帳が支配的でデジタル化余地が大きいことを可視化する目的。</p>
     </div>
   </section>
 
@@ -201,18 +220,18 @@ sequenceDiagram
   autonumber
   participant S as 営業担当
   participant A as エージェント
-  S->>A: 営業（電話/訪問）
-  A->>S: 問い合わせ（実施日・人数）
-  S->>S: 予約台帳で空き確認
-  A->>S: 見積り依頼
-  S->>S: 見積り作成<br/>（車種/距離/料金/道路代）
-  S-->>A: 見積り FAX
-  A->>S: 手配依頼（伝票発行）
-  S-->>A: 手配回答／運送積込書 FAX
-  S->>S: 予約台帳に確定登録
+  S->>A: 📞 営業（電話 or 👤 訪問）
+  A->>S: 📞 問い合わせ（実施日・人数）
+  S->>S: 📋 予約台帳で空き確認
+  A->>S: 📠 見積り依頼
+  S->>S: 📋 見積り作成<br/>（車種/距離/料金/道路代）
+  S-->>A: 📠 見積り FAX
+  A->>S: 📠 手配依頼（伝票発行）
+  S-->>A: 📠 手配回答／運送積込書 FAX
+  S->>S: 📋 予約台帳に確定登録
   Note over S,A: ※1 週間前キャンセル時は<br/>キャンセル料発生
-  S->>A: 運行確認（実施可否最終チェック）
-  A-->>S: 実施確定
+  S->>A: 📞 運行確認（実施可否最終チェック）
+  A-->>S: 📞 実施確定
       </script>
 
       <section class="mb-10">
@@ -312,27 +331,27 @@ sequenceDiagram
   participant D as 乗務員
   participant A as エージェント
 
-  E->>H: 予約台帳を FAX
-  H->>H: 配車組み<br/>（ガイド・運転手・バス決定）
-  H-->>E: 乗務員台帳を FAX
-  H->>U: 配車情報を共有
-  U->>U: 点呼簿作成・出庫時間決定
-  U-->>E: 点呼簿を各営業所に FAX
-  U->>U: 運行指示書作成
-  U-->>E: 運行指示書を FAX
+  E->>H: 📠 予約台帳を FAX
+  H->>H: 📋 配車組み<br/>（ガイド・運転手・バス決定）
+  H-->>E: 📠 乗務員台帳を FAX
+  H->>U: 📠 配車情報を共有
+  U->>U: 📋 点呼簿作成・出庫時間決定
+  U-->>E: 📠 点呼簿を各営業所に FAX
+  U->>U: 📋 運行指示書作成
+  U-->>E: 📠 運行指示書を FAX
   Note over U,D: 前日 17:00-18:00
-  U->>D: 翌日業務連絡（体調確認・指示書）
-  U->>A: エージェント前日確認
-  A-->>U: 添乗員情報
+  U->>D: 📞 翌日業務連絡（体調確認・指示書）
+  U->>A: 📞 エージェント前日確認
+  A-->>U: 📞 添乗員情報
   Note over D: 当日朝
-  U->>D: 出発前点呼（車両日常点検）
-  D->>A: 出発・運行
-  D-->>U: 中間報告
-  D->>U: 帰着・入庫
-  U->>D: 入庫後点呼
-  U->>U: 日報締め（検算）
-  U-->>E: 有料道路代を FAX
-  U->>U: 乗車券引受書を保管
+  U->>D: 👤 出発前点呼（車両日常点検）
+  D->>A: 🚌 出発・運行
+  D-->>U: 📞 中間報告
+  D->>U: 🚌 帰着・入庫
+  U->>D: 👤 入庫後点呼
+  U->>U: 📋 日報締め（検算）
+  U-->>E: 📠 有料道路代を FAX
+  U->>U: 📋 乗車券引受書を保管
       </script>
 
       <section class="mb-10">
@@ -429,20 +448,20 @@ sequenceDiagram
   participant H as 病院
   participant N as NASVA
   Note over O,DP: 周期 ─ 健診: 1年毎 / 適性: 3年毎
-  O->>DP: 健診・適性の実施を依頼
-  DP->>DR: 乗務員の予定を確認
-  DR-->>DP: 予定を回答
-  DP->>H: 健康診断を予約
-  DP->>N: 適性診断を予約
-  DP->>DP: 点呼簿・予定に反映
-  DP->>DR: 業務確認電話で日程連絡
+  O->>DP: 📞 健診・適性の実施を依頼
+  DP->>DR: 📞 乗務員の予定を確認
+  DR-->>DP: 📞 予定を回答
+  DP->>H: 📞 健康診断を予約
+  DP->>N: 📞 適性診断を予約
+  DP->>DP: 📋 点呼簿・予定に反映
+  DP->>DR: 📞 業務確認電話で日程連絡
   Note right of DR: 適性診断のみ<br/>書類を準備
-  DR->>H: 健康診断 受診
-  DR->>N: 適性診断 受診
-  H-->>O: 健診結果を報告
-  N-->>O: 適性診断結果を報告
-  O->>DR: 結果を踏まえ指導
-  O->>O: 受診・指導履歴を保管
+  DR->>H: 🩺 健康診断 受診
+  DR->>N: 🩺 適性診断 受診
+  H-->>O: 📋 健診結果を報告
+  N-->>O: 📋 適性診断結果を報告
+  O->>DR: 👤 結果を踏まえ指導
+  O->>O: 📋 受診・指導履歴を保管
       </script>
 
       <section class="mb-10">
@@ -535,25 +554,25 @@ sequenceDiagram
   participant M as 整備担当
   participant DP as 配車担当
   participant H as 日野自動車
-  DR->>M: 故障の状況報告
-  M->>M: 修理必要性を判断
+  DR->>M: 📞 故障の状況報告
+  M->>M: 👤 修理必要性を判断
   alt 修理必要
-    M->>DP: 修理内容を報告
+    M->>DP: 📞 修理内容を報告
     alt 自社整備で対応可
-      M->>M: 修理
-      DR->>M: 修理現場に同行
-      M-->>DP: 修理完了報告
+      M->>M: 🔧 修理
+      DR->>M: 🚌 修理現場に同行
+      M-->>DP: 📞 修理完了報告
     else 自社では対応不可
-      DP->>H: 修理依頼（日野連絡）
-      DR->>H: バスを持参 or 同行
-      H-->>DP: 修理完了報告
-      DR->>H: バスを引き取る
+      DP->>H: 📞 修理依頼（日野連絡）
+      DR->>H: 🚌 バスを持参 or 同行
+      H-->>DP: 📞 修理完了報告
+      DR->>H: 🚌 バスを引き取る
     end
-    DP->>DP: 点呼簿に反映
-    DP->>DR: 業務確認電話（バス変更）
-    DP->>DP: PC に故障内容・対応方法を入力
+    DP->>DP: 📋 点呼簿に反映
+    DP->>DR: 📞 業務確認電話（バス変更）
+    DP->>DP: 💻 PC に故障内容・対応方法を入力
   else 修理不要
-    M-->>DR: 様子見
+    M-->>DR: 👤 様子見
   end
       </script>
 
@@ -649,22 +668,22 @@ sequenceDiagram
   participant DR as 乗務員
   participant H as 日野自動車
   participant M as 整備担当
-  O->>DP: 点検対象車両を通知
+  O->>DP: 📞 点検対象車両を通知
   alt 車検
-    DP->>H: 次長・課長と日程調整
-    H-->>DP: 日程確定
+    DP->>H: 📞 次長・課長と日程調整
+    H-->>DP: 📞 日程確定
   else 3ヶ月点検
-    DP->>DP: 配車担当が日程決定
+    DP->>DP: 📋 配車担当が日程決定
   end
-  DP->>DP: 点呼簿に反映 (全営業所へ FAX)
-  DP->>DR: 業務確認電話で日程連絡
-  DR->>H: バスを持参 (車検)
-  DR->>M: バスを持参 (3ヶ月点検)
-  H-->>DP: 車検完了
-  M-->>DP: 3ヶ月点検完了
-  DP->>DP: 点検表へ入力 (○・期限・有効期限)
-  DP->>O: 書類を引き渡し
-  O->>O: 書類を保管
+  DP->>DP: 📠 点呼簿に反映（全営業所へ FAX）
+  DP->>DR: 📞 業務確認電話で日程連絡
+  DR->>H: 🚌 バスを持参（車検）
+  DR->>M: 🚌 バスを持参（3ヶ月点検）
+  H-->>DP: 📞 車検完了
+  M-->>DP: 📞 3ヶ月点検完了
+  DP->>DP: 💻 点検表へ入力（○・期限・有効期限）
+  DP->>O: 📋 書類を引き渡し
+  O->>O: 📋 書類を保管
       </script>
 
       <section class="mb-10">
@@ -745,20 +764,20 @@ sequenceDiagram
   participant O as 車両運行担当
   participant DR as 乗務員
   participant M as 整備担当
-  DP->>DP: 業務状況から日程を決定
-  DP->>DP: 点呼簿に反映
-  DP->>O: 実施日を共有
-  O->>DR: 業務確認電話 (清掃日連絡)
-  O->>M: 業務確認電話 (コロナ対策日連絡)
+  DP->>DP: 📋 業務状況から日程を決定
+  DP->>DP: 📋 点呼簿に反映
+  DP->>O: 📞 実施日を共有
+  O->>DR: 📞 業務確認電話（清掃日連絡）
+  O->>M: 📞 業務確認電話（コロナ対策日連絡）
   par 通常清掃
-    DR->>DR: 車内清掃を実施
-    DR-->>O: 清掃完了表を提出
+    DR->>DR: 🧴 車内清掃を実施
+    DR-->>O: 📋 清掃完了表を提出
   and コロナ対策
-    M->>M: コロナ対策作業を実施
-    M-->>O: コロナ対策完了表を提出
+    M->>M: 🧴 コロナ対策作業を実施
+    M-->>O: 📋 コロナ対策完了表を提出
   end
-  O->>O: 表をチェック・車両を保管
-  O->>O: コロナ対策表を各営業所へ FAX
+  O->>O: 📋 表をチェック・車両を保管
+  O->>O: 📠 コロナ対策表を各営業所へ FAX
       </script>
 
       <section class="mb-10">
