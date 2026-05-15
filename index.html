@@ -1,0 +1,831 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>東栄運輸 業務フロー｜観光バス部</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Noto+Serif+JP:wght@500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      fontFamily: {
+        sans: ['"Noto Sans JP"', 'system-ui', 'sans-serif'],
+        serif: ['"Noto Serif JP"', 'serif'],
+      },
+      colors: {
+        ink: '#1a2440', accent: '#1e5aa8', accent2: '#3a86c7',
+        cream: '#f6f3ec', warm: '#efe9dd', line: '#d8d2c4', sub: '#5a6478',
+      },
+    }
+  }
+}
+</script>
+<style>
+  html, body { font-family: 'Noto Sans JP', system-ui, sans-serif; color: #1a2440; }
+  body { background: #f6f3ec; }
+  .font-serif-jp { font-family: 'Noto Serif JP', serif; }
+
+  /* Phase chip */
+  .phase-chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; background: #1a2440; color: #f6f3ec; font-size: 11px; letter-spacing: 0.08em; border-radius: 999px; font-weight: 500; }
+
+  /* Task cards */
+  .task-card { background: #fff; border: 1px solid #d8d2c4; border-radius: 8px; padding: 16px 18px; }
+  .task-card h4 { font-weight: 700; font-size: 14px; color: #1e5aa8; margin-bottom: 6px; letter-spacing: 0.02em; }
+  .task-card .actor { font-size: 11px; color: #5a6478; margin-bottom: 8px; }
+  .task-card ul { font-size: 13px; line-height: 1.65; color: #1a2440; list-style: none; padding: 0; }
+  .task-card ul li { padding-left: 14px; position: relative; margin-bottom: 2px; }
+  .task-card ul li::before { content: ""; position: absolute; left: 2px; top: 9px; width: 4px; height: 4px; background: #3a86c7; border-radius: 50%; }
+
+  /* Nav */
+  .nav-item { padding: 12px 18px; cursor: pointer; border-left: 3px solid transparent; font-size: 13.5px; line-height: 1.5; color: #1a2440; transition: all 0.15s; }
+  .nav-item:hover { background: #efe9dd; }
+  .nav-item.active { background: #fff; border-left-color: #1e5aa8; color: #1e5aa8; font-weight: 700; }
+  .nav-item .nav-sub { font-size: 11px; color: #5a6478; font-weight: 400; margin-top: 2px; }
+  .nav-item.active .nav-sub { color: #3a86c7; }
+
+  /* Section heading */
+  .section-title { font-size: 11px; letter-spacing: 0.15em; color: #5a6478; font-weight: 500; margin-bottom: 14px; display: flex; align-items: center; gap: 10px; text-transform: uppercase; }
+  .section-title::after { content: ""; flex: 1; height: 1px; background: #d8d2c4; }
+
+  /* Flow pane */
+  .flow-pane { display: none; }
+  .flow-pane.active { display: block; }
+
+  /* Diagram container */
+  .diagram-box { background: #fff; border: 1px solid #d8d2c4; border-radius: 8px; padding: 24px; overflow-x: auto; }
+  .diagram-box svg { max-width: 100%; height: auto; display: block; margin: 0 auto; }
+
+  /* Diagram tabs */
+  .dtabs { display: inline-flex; background: #efe9dd; border-radius: 8px; padding: 3px; gap: 2px; margin-bottom: 12px; }
+  .dtab { padding: 6px 14px; font-size: 12px; border-radius: 6px; cursor: pointer; color: #5a6478; font-weight: 500; }
+  .dtab.active { background: #fff; color: #1e5aa8; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+  .dview { display: none; }
+  .dview.active { display: block; }
+
+  /* Legend */
+  .legend { display: flex; flex-wrap: wrap; gap: 12px 16px; font-size: 11px; color: #5a6478; margin-top: 12px; }
+  .legend-item { display: inline-flex; align-items: center; gap: 6px; }
+  .legend-swatch { width: 14px; height: 14px; border-radius: 3px; border: 1.5px solid; flex-shrink: 0; }
+
+  /* Mermaid overrides for subgraph (swim lanes) */
+  .diagram-box .cluster rect { rx: 6; ry: 6; }
+
+  /* Details */
+  details[open] summary .toggle-icon { transform: rotate(45deg); }
+  .toggle-icon { display: inline-block; transition: transform 0.2s; }
+
+  @media print {
+    .no-print { display: none !important; }
+    .flow-pane { display: block !important; page-break-after: always; }
+  }
+</style>
+</head>
+<body class="text-ink">
+
+<!-- Header -->
+<header class="bg-ink text-cream border-b border-line">
+  <div class="max-w-[1400px] mx-auto px-8 py-6 flex items-baseline justify-between flex-wrap gap-3">
+    <div>
+      <div class="text-[11px] tracking-[0.2em] text-accent2 mb-1">TOEI UNYU / KANKO BUS</div>
+      <h1 class="font-serif-jp text-2xl md:text-3xl font-bold">東栄運輸　業務フロー図</h1>
+      <div class="text-xs text-cream/70 mt-1">観光バス部の主要業務 6 工程 — BPMN スイムレーン＋シーケンスで構造化</div>
+    </div>
+    <div class="text-[11px] text-cream/60 tracking-wider">
+      原本: 2020-2021 業務マニュアル ／ 構造化: 2026.05
+    </div>
+  </div>
+</header>
+
+<div class="max-w-[1400px] mx-auto px-4 md:px-8 py-8">
+
+  <!-- Intro -->
+  <section class="mb-10 bg-white border border-line rounded-lg p-6 md:p-8">
+    <div class="grid md:grid-cols-3 gap-6">
+      <div class="md:col-span-2">
+        <div class="section-title">概要</div>
+        <p class="text-sm leading-relaxed text-ink/90">
+          東栄運輸（株）観光バス部の 6 主要業務を、Mermaid によるダイアグラムで再構成。
+          各業務は <strong>BPMN スイムレーン</strong>（誰が・いつ・何を）と、必要に応じて <strong>シーケンス図</strong>（役割間のメッセージのやり取り）の 2 ビューで参照できる。
+          属人化していた業務の引き継ぎ、業務改善議論の起点として使用する。
+        </p>
+      </div>
+      <div>
+        <div class="section-title">凡例</div>
+        <div class="legend">
+          <span class="legend-item"><span class="legend-swatch" style="background:#1e5aa8;border-color:#1e5aa8"></span>開始/終了</span>
+          <span class="legend-item"><span class="legend-swatch" style="background:#fff;border-color:#1e5aa8"></span>処理</span>
+          <span class="legend-item"><span class="legend-swatch" style="background:#fff8e6;border-color:#c8961b"></span>判定</span>
+          <span class="legend-item"><span class="legend-swatch" style="background:#efe9dd;border-color:#b8b0a0;border-style:dashed"></span>社外</span>
+        </div>
+        <p class="text-[11px] text-sub mt-2 leading-relaxed">実線矢印 ＝ 順序／点線矢印 ＝ 役割間メッセージ（FAX・電話など）</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="flex flex-col lg:flex-row gap-8">
+    <!-- Sidebar nav -->
+    <aside class="lg:w-64 lg:flex-shrink-0 no-print">
+      <div class="sticky top-4 bg-warm border border-line rounded-lg overflow-hidden">
+        <div class="px-4 py-3 border-b border-line text-[11px] tracking-[0.15em] text-sub font-medium">業務フロー一覧</div>
+        <nav id="flow-nav">
+          <div class="nav-item active" data-flow="reservation"><div>01　予約受付業務</div><div class="nav-sub">エージェント問合せ → 運行確認</div></div>
+          <div class="nav-item" data-flow="operation"><div>02　運行業務</div><div class="nav-sub">受注 → 配車組 → 出発 → 入庫</div></div>
+          <div class="nav-item" data-flow="health"><div>03　健康診断／適性診断</div><div class="nav-sub">乗務員健康管理サイクル</div></div>
+          <div class="nav-item" data-flow="trouble"><div>04　故障対応</div><div class="nav-sub">事実把握 → 修理 → 復帰</div></div>
+          <div class="nav-item" data-flow="inspection"><div>05　車検／3ヶ月点検</div><div class="nav-sub">法定点検サイクル</div></div>
+          <div class="nav-item" data-flow="cleaning"><div>06　車両清掃／コロナ対策</div><div class="nav-sub">日常衛生管理</div></div>
+        </nav>
+      </div>
+    </aside>
+
+    <!-- Flow content -->
+    <main class="flex-1 min-w-0">
+
+    <!-- =================== FLOW 01: 予約受付業務 =================== -->
+    <article class="flow-pane active" data-flow="reservation">
+      <header class="mb-6">
+        <div class="phase-chip mb-3">FLOW 01</div>
+        <h2 class="font-serif-jp text-3xl font-bold mb-2">予約受付業務</h2>
+        <p class="text-sm text-sub max-w-3xl">エージェントからの問い合わせ受領 → 見積り → 手配 → 運行確認。営業担当とエージェントの 2 者で進行。</p>
+      </header>
+
+      <section class="mb-10">
+        <div class="section-title">ダイアグラム</div>
+        <div class="dtabs"><div class="dtab active" data-view="flow">工程フロー（スイムレーン）</div><div class="dtab" data-view="seq">シーケンス図</div></div>
+        <div class="dview active" data-view="flow"><div class="diagram-box"><div class="mermaid" data-src="reservation-flow"></div></div></div>
+        <div class="dview" data-view="seq"><div class="diagram-box"><div class="mermaid" data-src="reservation-seq"></div></div></div>
+      </section>
+
+      <script type="application/mermaid" id="reservation-flow">
+%%{init: {"flowchart": {"htmlLabels": true, "curve": "basis", "padding": 14, "nodeSpacing": 28, "rankSpacing": 36}} }%%
+flowchart LR
+  classDef sales fill:#fff,stroke:#1e5aa8,color:#1a2440,stroke-width:1.5px
+  classDef agent fill:#efe9dd,stroke:#b8b0a0,color:#5a6478,stroke-dasharray:5 4
+  classDef se fill:#1e5aa8,stroke:#1e5aa8,color:#fff,stroke-width:1.5px
+  classDef dec fill:#fff8e6,stroke:#c8961b,color:#1a2440
+
+  subgraph S["営業担当"]
+    direction LR
+    S0([営業]):::se --> S1["見積り作成<br/><span style='font-size:10px;color:#5a6478'>車種・日時・距離・料金・道路代</span>"]:::sales
+    S1 --> S2{合意？}:::dec
+    S2 -->|Yes| S3["手配回答<br/><span style='font-size:10px;color:#5a6478'>伝票・運送積込書 FAX</span>"]:::sales
+    S3 --> S4["予約台帳<br/>登録"]:::sales
+    S4 --> S5([運行確認]):::se
+  end
+
+  subgraph A["エージェント"]
+    direction LR
+    A1["問い合わせ"]:::agent --> A2["見積り依頼"]:::agent --> A3["手配依頼"]:::agent --> A4["前日キャンセル<br/>確認"]:::agent
+  end
+
+  S0 -. 電話/訪問 .-> A1
+  A1 -. 空き照会 .-> S1
+  S1 -. 見積り FAX .-> A2
+  S2 -.->|No: 再見積| A2
+  A3 -. 伝票発行依頼 .-> S3
+  S5 -. 実施可否確認 .-> A4
+      </script>
+
+      <script type="application/mermaid" id="reservation-seq">
+sequenceDiagram
+  autonumber
+  participant S as 営業担当
+  participant A as エージェント
+  S->>A: 営業（電話/訪問）
+  A->>S: 問い合わせ（実施日・人数）
+  S->>S: 予約台帳で空き確認
+  A->>S: 見積り依頼
+  S->>S: 見積り作成<br/>（車種/距離/料金/道路代）
+  S-->>A: 見積り FAX
+  A->>S: 手配依頼（伝票発行）
+  S-->>A: 手配回答／運送積込書 FAX
+  S->>S: 予約台帳に確定登録
+  Note over S,A: ※1 週間前キャンセル時は<br/>キャンセル料発生
+  S->>A: 運行確認（実施可否最終チェック）
+  A-->>S: 実施確定
+      </script>
+
+      <section class="mb-10">
+        <div class="section-title">工程ごとのタスク</div>
+        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="task-card"><h4>① 営業</h4><div class="actor">営業担当</div><ul><li>電話営業／訪問営業</li><li>営業先のパンフレット・訴求イメージを台帳に入力</li><li>営業報告（必要に応じて）</li></ul></div>
+          <div class="task-card"><h4>　問い合わせ受付</h4><div class="actor">営業担当 ← エージェント</div><ul><li>予約台帳を確認し、対象日のバス空きを伝える</li></ul></div>
+          <div class="task-card"><h4>② 見積り依頼</h4><div class="actor">営業担当 ← エージェント</div><ul><li>担当者への共有を忘れない</li></ul></div>
+          <div class="task-card"><h4>　見積り作成</h4><div class="actor">営業担当</div><ul><li>車種を決める</li><li>日時／出発時間を決める</li><li>距離を出す</li><li>料金を算出</li><li>有料道路代を算出</li><li>支払い方法を確認</li><li>エージェントに見積りを FAX</li></ul></div>
+          <div class="task-card"><h4>③ 手配依頼</h4><div class="actor">エージェント</div><ul><li>予約台帳を見て再度内容確認</li><li>運送伝票を起票</li></ul></div>
+          <div class="task-card"><h4>　手配回答</h4><div class="actor">営業担当</div><ul><li>依頼書（伝票）を書き起こす</li><li>手配回答と運送積込書を FAX</li></ul></div>
+          <div class="task-card"><h4>④ 予約台帳</h4><div class="actor">営業担当</div><ul><li>部数を予約確認時に使用するため整える</li></ul></div>
+          <div class="task-card"><h4>　運行確認</h4><div class="actor">営業担当</div><ul><li>本当に運行が実施されるかをエージェントに確認</li><li>1 週間前のキャンセル時は要件発生</li></ul></div>
+        </div>
+      </section>
+
+      <details class="bg-white border border-line rounded-lg">
+        <summary class="cursor-pointer px-5 py-3 text-sm font-medium flex items-center justify-between"><span>原本資料を見る（業務マニュアル）</span><span class="toggle-icon text-accent text-lg leading-none">＋</span></summary>
+        <div class="p-5 border-t border-line"><img src="originals/01-reservation.png" alt="予約受付業務 原本" class="w-full max-w-4xl mx-auto"></div>
+      </details>
+    </article>
+
+    <!-- =================== FLOW 02: 運行業務 =================== -->
+    <article class="flow-pane" data-flow="operation">
+      <header class="mb-6">
+        <div class="phase-chip mb-3">FLOW 02</div>
+        <h2 class="font-serif-jp text-3xl font-bold mb-2">運行業務</h2>
+        <p class="text-sm text-sub max-w-3xl">受注後、配車組〜運行指示書作成〜前日確認〜出発〜入庫後点呼〜日報処理。<strong>営業（東京）／配車（横浜）／運行・車両（さいたま）</strong>の 3 拠点が FAX で連動する中核フロー。</p>
+      </header>
+
+      <section class="mb-10">
+        <div class="section-title">ダイアグラム</div>
+        <div class="dtabs"><div class="dtab active" data-view="flow">工程フロー（スイムレーン）</div><div class="dtab" data-view="seq">シーケンス図</div></div>
+        <div class="dview active" data-view="flow"><div class="diagram-box"><div class="mermaid" data-src="operation-flow"></div></div></div>
+        <div class="dview" data-view="seq"><div class="diagram-box"><div class="mermaid" data-src="operation-seq"></div></div></div>
+      </section>
+
+      <script type="application/mermaid" id="operation-flow">
+%%{init: {"flowchart": {"htmlLabels": true, "curve": "basis", "padding": 14, "nodeSpacing": 26, "rankSpacing": 36}} }%%
+flowchart LR
+  classDef sales fill:#fff,stroke:#3a86c7,color:#1a2440,stroke-width:1.5px
+  classDef dispatch fill:#fff,stroke:#1e5aa8,color:#1a2440,stroke-width:1.5px
+  classDef ops fill:#fff,stroke:#1a2440,color:#1a2440,stroke-width:1.5px
+  classDef driver fill:#fff,stroke:#c8961b,color:#1a2440,stroke-width:1.5px
+  classDef agent fill:#efe9dd,stroke:#b8b0a0,color:#5a6478,stroke-dasharray:5 4
+  classDef se fill:#1a2440,stroke:#1a2440,color:#fff,stroke-width:1.5px
+
+  subgraph E["営業担当（東京）"]
+    direction LR
+    E1([受注]):::se
+  end
+
+  subgraph H["配車担当（横浜）"]
+    direction LR
+    H1["予約台帳"]:::dispatch --> H2["配車組み<br/><span style='font-size:10px;color:#5a6478'>ガイド・運転手・バス決定</span>"]:::dispatch
+  end
+
+  subgraph U["運行・車両担当（さいたま）"]
+    direction LR
+    U1["点呼簿作成<br/><span style='font-size:10px;color:#5a6478'>出庫時間決定</span>"]:::ops --> U2["運行指示書作成<br/><span style='font-size:10px;color:#5a6478'>配車地図・ステッカー・道のり</span>"]:::ops
+    U2 --> U3["翌日業務連絡<br/><span style='font-size:10px;color:#5a6478'>体調確認・指示書掲示</span>"]:::ops
+    U3 --> U4["エージェント<br/>前日確認"]:::ops
+    U4 --> U5["入庫後点呼<br/><span style='font-size:10px;color:#5a6478'>入庫時間記入</span>"]:::ops
+    U5 --> U6["日報締め<br/><span style='font-size:10px;color:#5a6478'>検算・有料道路代 FAX</span>"]:::ops
+    U6 --> U7([乗車券引受書<br/>保管]):::se
+  end
+
+  subgraph D["乗務員"]
+    direction LR
+    D1["出発前点呼<br/><span style='font-size:10px;color:#5a6478'>車両日常点検</span>"]:::driver --> D2["出発<br/><span style='font-size:10px;color:#5a6478'>タコグラフセット</span>"]:::driver
+    D2 --> D3["運転・中間報告"]:::driver
+    D3 --> D4["帰着・入庫"]:::driver
+  end
+
+  subgraph A["エージェント"]
+    direction LR
+    A1["前日確認<br/>応答"]:::agent --> A2["当日<br/>運行受取"]:::agent
+  end
+
+  E1 -. 予約台帳 FAX .-> H1
+  H2 -. 乗務員台帳 FAX .-> U1
+  U3 -.-> D1
+  U4 -.前日連絡.-> A1
+  A1 -. 添乗員情報 .-> U4
+  D1 --> D2
+  D4 -. 入庫報告 .-> U5
+  D3 -. 中間報告 .-> U3
+  A2 -. 完了確認 .-> U6
+      </script>
+
+      <script type="application/mermaid" id="operation-seq">
+sequenceDiagram
+  autonumber
+  participant E as 営業（東京）
+  participant H as 配車（横浜）
+  participant U as 運行・車両（さいたま）
+  participant D as 乗務員
+  participant A as エージェント
+
+  E->>H: 予約台帳を FAX
+  H->>H: 配車組み<br/>（ガイド・運転手・バス決定）
+  H-->>E: 乗務員台帳を FAX
+  H->>U: 配車情報を共有
+  U->>U: 点呼簿作成・出庫時間決定
+  U-->>E: 点呼簿を各営業所に FAX
+  U->>U: 運行指示書作成
+  U-->>E: 運行指示書を FAX
+  Note over U,D: 前日 17:00-18:00
+  U->>D: 翌日業務連絡（体調確認・指示書）
+  U->>A: エージェント前日確認
+  A-->>U: 添乗員情報
+  Note over D: 当日朝
+  U->>D: 出発前点呼（車両日常点検）
+  D->>A: 出発・運行
+  D-->>U: 中間報告
+  D->>U: 帰着・入庫
+  U->>D: 入庫後点呼
+  U->>U: 日報締め（検算）
+  U-->>E: 有料道路代を FAX
+  U->>U: 乗車券引受書を保管
+      </script>
+
+      <section class="mb-10">
+        <div class="section-title">工程ごとのタスク</div>
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div class="task-card"><h4>受注 → 予約台帳</h4><div class="actor">営業 / 配車</div><ul><li>見積もり後の受注確定</li><li>予約台帳を横浜に送信</li></ul></div>
+          <div class="task-card"><h4>配車組み</h4><div class="actor">配車担当（横浜）</div><ul><li>ガイドの決定</li><li>ドライバー・バスの決定</li><li>乗務員台帳を東京に送信（FAX）</li></ul></div>
+          <div class="task-card"><h4>点呼簿作成</h4><div class="actor">運行・車両担当</div><ul><li>点呼簿記入／出庫時間決定</li><li>点呼簿を各営業所に送信（FAX）</li></ul></div>
+          <div class="task-card"><h4>運行指示書作成</h4><div class="actor">運行・車両担当</div><ul><li>配車地図／ステッカー作成</li><li>ゴム印押印／道のり入力</li><li>パソコン入力／上長確認</li><li>運転手用ステッカー・個別点呼</li><li>事務用・運転手用に分類</li><li>運行指示書を東京に FAX</li></ul></div>
+          <div class="task-card"><h4>乗務員 翌日業務連絡</h4><div class="actor">運行・車両 → 乗務員</div><ul><li>業務内容連絡／体調確認</li><li>当日・翌日の点呼簿を大宮に FAX</li><li>ホワイトボード記入</li><li>運転手用指示書の廊下掲示</li><li>アルコール消毒セット準備</li></ul></div>
+          <div class="task-card"><h4>エージェント前日確認</h4><div class="actor">運行・車両 ↔ エージェント</div><ul><li>運行内容確認</li><li>他営業所に添乗員情報を連絡</li><li>指示書に添乗員情報を記入</li></ul></div>
+          <div class="task-card"><h4>出発前点呼</h4><div class="actor">乗務員 / 運行・車両</div><ul><li>車両日常点検</li><li>個別点呼記録簿を記入</li></ul></div>
+          <div class="task-card"><h4>出発・運転中</h4><div class="actor">乗務員</div><ul><li>タコグラフのセット</li><li>中間報告</li><li>運行中日報の記入</li></ul></div>
+          <div class="task-card"><h4>帰着・入庫後点呼</h4><div class="actor">乗務員 / 運行・車両</div><ul><li>入庫時間を点呼簿に記入</li></ul></div>
+          <div class="task-card"><h4>日報締め</h4><div class="actor">運行・車両担当</div><ul><li>表紙作成／検算</li><li>メーター・有料道路代確認</li><li>実車・回送の走行距離入力</li><li>有料道路代を東京に FAX</li><li>W チェック／上長確認</li><li>日報をコピーし保管</li></ul></div>
+          <div class="task-card"><h4>乗車券引受書</h4><div class="actor">運行・車両担当</div><ul><li>引受書記入</li><li>必要書類の印刷</li><li>保管</li></ul></div>
+        </div>
+      </section>
+
+      <details class="bg-white border border-line rounded-lg">
+        <summary class="cursor-pointer px-5 py-3 text-sm font-medium flex items-center justify-between"><span>原本資料を見る（業務マニュアル）</span><span class="toggle-icon text-accent text-lg leading-none">＋</span></summary>
+        <div class="p-5 border-t border-line"><img src="originals/02-operation.png" alt="運行業務 原本" class="w-full max-w-5xl mx-auto"></div>
+      </details>
+    </article>
+
+    <!-- =================== FLOW 03: 健康診断／適性診断 =================== -->
+    <article class="flow-pane" data-flow="health">
+      <header class="mb-6">
+        <div class="phase-chip mb-3">FLOW 03</div>
+        <h2 class="font-serif-jp text-3xl font-bold mb-2">健康診断／適性診断</h2>
+        <p class="text-sm text-sub max-w-3xl">乗務員の健康診断（病院）と運転適性診断（NASVA）を、日程調整から結果保管まで一貫管理。</p>
+      </header>
+
+      <section class="mb-10">
+        <div class="section-title">ダイアグラム</div>
+        <div class="dtabs"><div class="dtab active" data-view="flow">工程フロー（スイムレーン）</div><div class="dtab" data-view="seq">シーケンス図</div></div>
+        <div class="dview active" data-view="flow"><div class="diagram-box"><div class="mermaid" data-src="health-flow"></div></div></div>
+        <div class="dview" data-view="seq"><div class="diagram-box"><div class="mermaid" data-src="health-seq"></div></div></div>
+      </section>
+
+      <script type="application/mermaid" id="health-flow">
+%%{init: {"flowchart": {"htmlLabels": true, "curve": "basis", "padding": 14, "nodeSpacing": 26, "rankSpacing": 36}} }%%
+flowchart LR
+  classDef office fill:#fff,stroke:#1e5aa8,color:#1a2440,stroke-width:1.5px
+  classDef dispatch fill:#fff,stroke:#3a86c7,color:#1a2440,stroke-width:1.5px
+  classDef driver fill:#fff,stroke:#c8961b,color:#1a2440,stroke-width:1.5px
+  classDef ext fill:#efe9dd,stroke:#b8b0a0,color:#5a6478,stroke-dasharray:5 4
+  classDef se fill:#1a2440,stroke:#1a2440,color:#fff,stroke-width:1.5px
+  classDef dec fill:#fff8e6,stroke:#c8961b,color:#1a2440
+
+  subgraph O["各営業所"]
+    direction LR
+    O1([日程調整]):::se --> O2{種別}:::dec
+    O3["指導"]:::office --> O4([診断履歴保管]):::se
+  end
+
+  subgraph DP["配車担当"]
+    direction LR
+    DP1["日付決定<br/><span style='font-size:10px;color:#5a6478'>乗務員予定確認</span>"]:::dispatch --> DP2["予約"]:::dispatch
+    DP2 --> DP3["点呼簿/予定<br/>反映"]:::dispatch
+    DP3 --> DP4["業務確認電話"]:::dispatch
+  end
+
+  subgraph DR["乗務員"]
+    direction LR
+    DR1["持ち物準備<br/><span style='font-size:10px;color:#5a6478'>適性診断のみ</span>"]:::driver --> DR2["診断会場へ"]:::driver
+  end
+
+  subgraph HP["病院"]
+    direction LR
+    H1["健康診断"]:::ext --> H2["結果報告"]:::ext
+  end
+
+  subgraph NS["NASVA"]
+    direction LR
+    N1["適性診断"]:::ext --> N2["結果報告"]:::ext
+  end
+
+  O2 -->|健診| DP1
+  O2 -->|適性| DP1
+  DP4 -. 連絡 .-> DR1
+  DR2 -->|健診| H1
+  DR2 -->|適性| N1
+  H2 -. 結果 .-> O3
+  N2 -. 結果 .-> O3
+      </script>
+
+      <script type="application/mermaid" id="health-seq">
+sequenceDiagram
+  autonumber
+  participant O as 各営業所
+  participant DP as 配車担当
+  participant DR as 乗務員
+  participant H as 病院
+  participant N as NASVA
+  O->>O: 日程調整（健診1年/適性3年）
+  O->>DP: 実施日候補を共有
+  DP->>DP: 乗務員予定確認→日付決定
+  DP->>H: 健康診断予約
+  DP->>N: 適性診断予約
+  DP->>DP: 点呼簿/予定に反映
+  DP->>DR: 業務確認電話（日程連絡）
+  DR->>DR: 持ち物準備（適性診断のみ）
+  DR->>H: 健康診断 受診
+  DR->>N: 適性診断 受診
+  H-->>O: 健診結果
+  N-->>O: 適性診断結果
+  O->>DR: 指導（結果説明）
+  O->>O: 受診・指導履歴を保管
+      </script>
+
+      <section class="mb-10">
+        <div class="section-title">工程ごとのタスク</div>
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div class="task-card"><h4>① 日程調整</h4><div class="actor">各営業所</div><ul><li>健康診断は 1 年毎／適性診断は 3 年毎の目安</li></ul></div>
+          <div class="task-card"><h4>　日付決定</h4><div class="actor">配車担当</div><ul><li>乗務員の予定を確認し決定</li></ul></div>
+          <div class="task-card"><h4>② 予約</h4><div class="actor">配車担当</div><ul><li>病院・NASVA にそれぞれ予約</li></ul></div>
+          <div class="task-card"><h4>　点呼簿／予定に反映</h4><div class="actor">配車担当</div><ul><li>予定／点呼簿に反映</li></ul></div>
+          <div class="task-card"><h4>　業務確認電話</h4><div class="actor">配車担当 → 乗務員</div><ul><li>診断日を伝達</li></ul></div>
+          <div class="task-card"><h4>　持ち物準備</h4><div class="actor">乗務員（適性のみ）</div><ul><li>適性診断に必要な書類を準備</li></ul></div>
+          <div class="task-card"><h4>③ 診断</h4><div class="actor">乗務員 / 病院 / NASVA</div><ul><li>会場へ行き診断を受ける</li></ul></div>
+          <div class="task-card"><h4>④ 結果報告</h4><div class="actor">病院・NASVA → 各営業所</div><ul><li>診断結果が営業所に届く</li></ul></div>
+          <div class="task-card"><h4>　指導</h4><div class="actor">各営業所 → 乗務員</div><ul><li>結果を元に指導／履歴を渡す</li></ul></div>
+          <div class="task-card"><h4>　履歴保管</h4><div class="actor">各営業所</div><ul><li>受診・指導履歴を保管</li></ul></div>
+        </div>
+      </section>
+
+      <details class="bg-white border border-line rounded-lg">
+        <summary class="cursor-pointer px-5 py-3 text-sm font-medium flex items-center justify-between"><span>原本資料を見る（業務マニュアル）</span><span class="toggle-icon text-accent text-lg leading-none">＋</span></summary>
+        <div class="p-5 border-t border-line"><img src="originals/03-health.png" alt="健康診断／適性診断 原本" class="w-full max-w-5xl mx-auto"></div>
+      </details>
+    </article>
+
+    <!-- =================== FLOW 04: 故障対応 =================== -->
+    <article class="flow-pane" data-flow="trouble">
+      <header class="mb-6">
+        <div class="phase-chip mb-3">FLOW 04</div>
+        <h2 class="font-serif-jp text-3xl font-bold mb-2">故障対応</h2>
+        <p class="text-sm text-sub max-w-3xl">乗務員からの故障報告を受け、整備担当の判断のもと、自社整備 or 日野自動車で修理し、復帰までを管理。</p>
+      </header>
+
+      <section class="mb-10">
+        <div class="section-title">ダイアグラム</div>
+        <div class="dtabs"><div class="dtab active" data-view="flow">工程フロー（スイムレーン）</div><div class="dtab" data-view="seq">シーケンス図</div></div>
+        <div class="dview active" data-view="flow"><div class="diagram-box"><div class="mermaid" data-src="trouble-flow"></div></div></div>
+        <div class="dview" data-view="seq"><div class="diagram-box"><div class="mermaid" data-src="trouble-seq"></div></div></div>
+      </section>
+
+      <script type="application/mermaid" id="trouble-flow">
+%%{init: {"flowchart": {"htmlLabels": true, "curve": "basis", "padding": 14, "nodeSpacing": 26, "rankSpacing": 36}} }%%
+flowchart LR
+  classDef ops fill:#fff,stroke:#1e5aa8,color:#1a2440,stroke-width:1.5px
+  classDef dispatch fill:#fff,stroke:#3a86c7,color:#1a2440,stroke-width:1.5px
+  classDef driver fill:#fff,stroke:#c8961b,color:#1a2440,stroke-width:1.5px
+  classDef maint fill:#fff,stroke:#1a2440,color:#1a2440,stroke-width:1.5px
+  classDef hino fill:#efe9dd,stroke:#b8b0a0,color:#5a6478,stroke-dasharray:5 4
+  classDef dec fill:#fff8e6,stroke:#c8961b,color:#1a2440
+  classDef se fill:#1a2440,stroke:#1a2440,color:#fff,stroke-width:1.5px
+
+  subgraph DR["乗務員"]
+    direction LR
+    DR1([故障発生]):::se --> DR2["状況報告"]:::driver
+    DR2 --> DR3["修理に同行<br/>or バス引き取り"]:::driver
+  end
+
+  subgraph M["整備担当"]
+    direction LR
+    M1{修理必要?}:::dec -->|Yes| M2["内容報告"]:::maint
+    M2 --> M3{自社整備可?}:::dec
+    M3 -->|Yes| M4["修理"]:::maint
+    M4 --> M5["修理完了報告"]:::maint
+  end
+
+  subgraph DP["配車担当"]
+    direction LR
+    DP1["日野に連絡"]:::dispatch --> DP2["修理内容を<br/>所内に伝達"]:::dispatch
+    DP2 --> DP3["点呼簿反映"]:::dispatch
+    DP3 --> DP4["業務確認電話<br/><span style='font-size:10px;color:#5a6478'>バス変更連絡</span>"]:::dispatch
+    DP4 --> DP5([PC に情報入力]):::se
+  end
+
+  subgraph H["日野自動車"]
+    direction LR
+    H1["修理"]:::hino --> H2["修理完了報告"]:::hino
+  end
+
+  DR2 --> M1
+  M3 -->|No| DP1
+  DP1 -. 修理依頼 .-> H1
+  H2 -. 完了通知 .-> DP5
+  M5 --> DP5
+  M2 -. 修理内容 .-> DP2
+      </script>
+
+      <script type="application/mermaid" id="trouble-seq">
+sequenceDiagram
+  autonumber
+  participant DR as 乗務員
+  participant M as 整備担当
+  participant DP as 配車担当
+  participant H as 日野自動車
+  DR->>M: 故障の状況報告
+  M->>M: 修理必要性を判断
+  alt 修理必要
+    M->>DP: 修理内容を報告
+    alt 自社整備で対応可
+      M->>M: 修理
+      DR->>M: 修理現場に同行
+      M-->>DP: 修理完了報告
+    else 自社では対応不可
+      DP->>H: 修理依頼（日野連絡）
+      DR->>H: バスを持参 or 同行
+      H-->>DP: 修理完了報告
+      DR->>H: バスを引き取る
+    end
+    DP->>DP: 点呼簿に反映
+    DP->>DR: 業務確認電話（バス変更）
+    DP->>DP: PC に故障内容・対応方法を入力
+  else 修理不要
+    M-->>DR: 様子見
+  end
+      </script>
+
+      <section class="mb-10">
+        <div class="section-title">工程ごとのタスク</div>
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div class="task-card"><h4>① 状況把握</h4><div class="actor">乗務員 → 営業所</div><ul><li>故障状況を所内に伝える</li></ul></div>
+          <div class="task-card"><h4>　修理判断</h4><div class="actor">整備担当</div><ul><li>修理必要性を判断</li><li>必要なら報告・記述</li></ul></div>
+          <div class="task-card"><h4>　修理内容報告</h4><div class="actor">配車担当 → 所内</div><ul><li>バス状況・修理内容を伝達</li></ul></div>
+          <div class="task-card"><h4>② 点呼簿に反映</h4><div class="actor">配車担当</div><ul><li>日程を点呼簿に反映</li></ul></div>
+          <div class="task-card"><h4>　業務確認電話</h4><div class="actor">配車担当</div><ul><li>バス変更があった旨を伝達</li></ul></div>
+          <div class="task-card"><h4>③ 修理</h4><div class="actor">整備担当 / 日野 / 乗務員</div><ul><li>業務員は修理現場に同行／付き添い</li><li>自社で対応不可 → 整備工場へ</li><li>業務員はバスを引き取る</li></ul></div>
+          <div class="task-card"><h4>　修理完了報告</h4><div class="actor">整備担当 / 日野</div><ul><li>使える状態になった旨を伝達</li></ul></div>
+          <div class="task-card"><h4>④ 情報入力</h4><div class="actor">配車担当</div><ul><li>PC に故障内容・対応方法を入力</li></ul></div>
+        </div>
+      </section>
+
+      <details class="bg-white border border-line rounded-lg">
+        <summary class="cursor-pointer px-5 py-3 text-sm font-medium flex items-center justify-between"><span>原本資料を見る（業務マニュアル）</span><span class="toggle-icon text-accent text-lg leading-none">＋</span></summary>
+        <div class="p-5 border-t border-line"><img src="originals/04-trouble.png" alt="故障対応 原本" class="w-full max-w-5xl mx-auto"></div>
+      </details>
+    </article>
+
+    <!-- =================== FLOW 05: 車検／3ヶ月点検 =================== -->
+    <article class="flow-pane" data-flow="inspection">
+      <header class="mb-6">
+        <div class="phase-chip mb-3">FLOW 05</div>
+        <h2 class="font-serif-jp text-3xl font-bold mb-2">車検／3ヶ月点検</h2>
+        <p class="text-sm text-sub max-w-3xl">法定の車検（日野自動車）と 3 ヶ月点検（自社整備）を、対象車両確認から点検表入力・書類保管まで管理。</p>
+      </header>
+
+      <section class="mb-10">
+        <div class="section-title">ダイアグラム</div>
+        <div class="dtabs"><div class="dtab active" data-view="flow">工程フロー（スイムレーン）</div></div>
+        <div class="dview active" data-view="flow"><div class="diagram-box"><div class="mermaid" data-src="inspection-flow"></div></div></div>
+      </section>
+
+      <script type="application/mermaid" id="inspection-flow">
+%%{init: {"flowchart": {"htmlLabels": true, "curve": "basis", "padding": 14, "nodeSpacing": 26, "rankSpacing": 36}} }%%
+flowchart LR
+  classDef ops fill:#fff,stroke:#1e5aa8,color:#1a2440,stroke-width:1.5px
+  classDef dispatch fill:#fff,stroke:#3a86c7,color:#1a2440,stroke-width:1.5px
+  classDef driver fill:#fff,stroke:#c8961b,color:#1a2440,stroke-width:1.5px
+  classDef maint fill:#fff,stroke:#1a2440,color:#1a2440,stroke-width:1.5px
+  classDef hino fill:#efe9dd,stroke:#b8b0a0,color:#5a6478,stroke-dasharray:5 4
+  classDef dec fill:#fff8e6,stroke:#c8961b,color:#1a2440
+  classDef se fill:#1a2440,stroke:#1a2440,color:#fff,stroke-width:1.5px
+
+  subgraph O["車両運行担当"]
+    direction LR
+    O1([点検対象車両確認]):::se --> O2{種別}:::dec
+    O3([書類保管]):::se
+  end
+
+  subgraph DP["配車担当"]
+    direction LR
+    DP1["実施日決定<br/><span style='font-size:10px;color:#5a6478'>車検:次長×課長×日野<br/>3ヶ月:配車担当</span>"]:::dispatch --> DP2["点呼簿反映"]:::dispatch
+    DP2 --> DP3["業務確認電話"]:::dispatch
+    DP3 --> DP4["点検表へ入力<br/><span style='font-size:10px;color:#5a6478'>○・期限・有効期限</span>"]:::dispatch
+  end
+
+  subgraph DR["乗務員"]
+    direction LR
+    DR1["バスを持参"]:::driver
+  end
+
+  subgraph H["日野自動車"]
+    direction LR
+    H1["車検実施"]:::hino
+  end
+
+  subgraph M["整備担当"]
+    direction LR
+    M1["3ヶ月点検実施"]:::maint
+  end
+
+  O2 -->|車検| DP1
+  O2 -->|3ヶ月| DP1
+  DP3 -. 連絡 .-> DR1
+  DR1 -->|車検| H1
+  DR1 -->|3ヶ月| M1
+  H1 -. 完了 .-> DP4
+  M1 -. 完了 .-> DP4
+  DP4 --> O3
+      </script>
+
+      <section class="mb-10">
+        <div class="section-title">工程ごとのタスク</div>
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div class="task-card"><h4>① 点検対象車両の確認</h4><div class="actor">車両運行担当</div><ul><li>点検対象車両を確認し関係者に伝える</li></ul></div>
+          <div class="task-card"><h4>　実施日を決める</h4><div class="actor">配車担当</div><ul><li><strong>車検</strong>：次長と課長で日程相談 → 日野と相談し決定</li><li><strong>3ヶ月点検</strong>：配車担当が決める</li></ul></div>
+          <div class="task-card"><h4>　点呼簿に反映</h4><div class="actor">配車担当</div><ul><li>決まった実施日を点呼簿に反映</li><li>全営業所に FAX</li></ul></div>
+          <div class="task-card"><h4>　業務確認電話</h4><div class="actor">配車担当</div><ul><li>点検日にあたる旨を伝達</li></ul></div>
+          <div class="task-card"><h4>② 点検実施</h4><div class="actor">乗務員 / 日野 / 整備担当</div><ul><li>3 ヶ月点検は依頼書を作成し整備担当へ</li><li>当該営業所にバスを持参</li></ul></div>
+          <div class="task-card"><h4>③ 点検表へ入力</h4><div class="actor">配車担当</div><ul><li>用紙からナンバー・台数確認</li><li>PC の点検表に「○」「期限」入力</li><li>有効期限を入力（車検のみ）</li></ul></div>
+          <div class="task-card"><h4>　書類の保管</h4><div class="actor">車両運行担当</div><ul><li>書類を保管</li></ul></div>
+        </div>
+      </section>
+
+      <details class="bg-white border border-line rounded-lg">
+        <summary class="cursor-pointer px-5 py-3 text-sm font-medium flex items-center justify-between"><span>原本資料を見る（業務マニュアル）</span><span class="toggle-icon text-accent text-lg leading-none">＋</span></summary>
+        <div class="p-5 border-t border-line"><img src="originals/05-inspection.png" alt="車検／3ヶ月点検 原本" class="w-full max-w-5xl mx-auto"></div>
+      </details>
+    </article>
+
+    <!-- =================== FLOW 06: 車両清掃／コロナ対策 =================== -->
+    <article class="flow-pane" data-flow="cleaning">
+      <header class="mb-6">
+        <div class="phase-chip mb-3">FLOW 06</div>
+        <h2 class="font-serif-jp text-3xl font-bold mb-2">車両清掃／コロナ対策</h2>
+        <p class="text-sm text-sub max-w-3xl">日常的な車両清掃と、コロナ禍以降に追加されたウイルス対策業務。実施結果は表に反映し、コロナ対策は各営業所に FAX 共有。</p>
+      </header>
+
+      <section class="mb-10">
+        <div class="section-title">ダイアグラム</div>
+        <div class="dtabs"><div class="dtab active" data-view="flow">工程フロー（スイムレーン）</div></div>
+        <div class="dview active" data-view="flow"><div class="diagram-box"><div class="mermaid" data-src="cleaning-flow"></div></div></div>
+      </section>
+
+      <script type="application/mermaid" id="cleaning-flow">
+%%{init: {"flowchart": {"htmlLabels": true, "curve": "basis", "padding": 14, "nodeSpacing": 26, "rankSpacing": 36}} }%%
+flowchart LR
+  classDef ops fill:#fff,stroke:#1e5aa8,color:#1a2440,stroke-width:1.5px
+  classDef dispatch fill:#fff,stroke:#3a86c7,color:#1a2440,stroke-width:1.5px
+  classDef driver fill:#fff,stroke:#c8961b,color:#1a2440,stroke-width:1.5px
+  classDef maint fill:#fff,stroke:#1a2440,color:#1a2440,stroke-width:1.5px
+  classDef se fill:#1a2440,stroke:#1a2440,color:#fff,stroke-width:1.5px
+
+  subgraph DP["配車担当"]
+    direction LR
+    DP1([日程決定]):::se --> DP2["点呼簿に反映"]:::dispatch
+  end
+
+  subgraph O["車両運行担当"]
+    direction LR
+    O1["業務確認電話"]:::ops --> O2["表チェック・保管"]:::ops
+    O2 --> O3([表を各営業所へ FAX<br/>コロナ対策のみ]):::se
+  end
+
+  subgraph DR["乗務員"]
+    direction LR
+    DR1["清掃実施"]:::driver
+  end
+
+  subgraph M["整備担当"]
+    direction LR
+    M1["コロナ対策作業"]:::maint
+  end
+
+  DP2 -. 連絡 .-> O1
+  O1 -. 指示 .-> DR1
+  O1 -. 指示 .-> M1
+  DR1 -. 完了表 .-> O2
+  M1 -. 完了表 .-> O2
+      </script>
+
+      <section class="mb-10">
+        <div class="section-title">工程ごとのタスク</div>
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div class="task-card"><h4>① 日程を決める</h4><div class="actor">配車担当</div><ul><li>業務状況を見て日程を決定</li><li>点呼簿に反映</li></ul></div>
+          <div class="task-card"><h4>　業務確認電話</h4><div class="actor">車両運行担当</div><ul><li>清掃／コロナ対策日を伝達</li></ul></div>
+          <div class="task-card"><h4>② 実施</h4><div class="actor">乗務員 / 整備担当</div><ul><li>必要に応じて整備工場でバスを点検</li><li>清掃・コロナ対策作業を実施</li></ul></div>
+          <div class="task-card"><h4>③ 表に反映</h4><div class="actor">車両運行担当</div><ul><li>業務員から表を受領しチェック</li><li>コロナ対策内容を反映</li></ul></div>
+          <div class="task-card"><h4>　保管／FAX</h4><div class="actor">車両運行担当</div><ul><li>車両を保管</li><li>コロナ対策表を各営業所に FAX</li></ul></div>
+        </div>
+      </section>
+
+      <details class="bg-white border border-line rounded-lg">
+        <summary class="cursor-pointer px-5 py-3 text-sm font-medium flex items-center justify-between"><span>原本資料を見る（業務マニュアル）</span><span class="toggle-icon text-accent text-lg leading-none">＋</span></summary>
+        <div class="p-5 border-t border-line"><img src="originals/06-cleaning.png" alt="車両清掃／コロナ対策 原本" class="w-full max-w-4xl mx-auto"></div>
+      </details>
+    </article>
+
+    </main>
+  </div>
+
+  <footer class="mt-16 pt-8 border-t border-line text-[11px] text-sub flex flex-wrap items-center justify-between gap-2">
+    <div>東栄運輸（株）観光バス部 業務フロー / 整備：スタジオサイタマ</div>
+    <div>原本: 東栄運輸_業務マニュアル.docx / .pptx ＋ 各フロー PNG（2020-2021）</div>
+  </footer>
+</div>
+
+<script type="module">
+import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs";
+
+mermaid.initialize({
+  startOnLoad: false,
+  theme: 'base',
+  themeVariables: {
+    fontFamily: '"Noto Sans JP", system-ui, sans-serif',
+    fontSize: '13px',
+    primaryColor: '#ffffff',
+    primaryTextColor: '#1a2440',
+    primaryBorderColor: '#1e5aa8',
+    lineColor: '#1e5aa8',
+    secondaryColor: '#efe9dd',
+    secondaryTextColor: '#1a2440',
+    tertiaryColor: '#f6f3ec',
+    clusterBkg: '#f9f6ee',
+    clusterBorder: '#d8d2c4',
+    labelBackground: '#ffffff',
+    edgeLabelBackground: '#ffffff',
+    actorBorder: '#1e5aa8',
+    actorBkg: '#ffffff',
+    actorTextColor: '#1a2440',
+    actorLineColor: '#1e5aa8',
+    signalColor: '#1a2440',
+    signalTextColor: '#1a2440',
+    noteBkgColor: '#fff8e6',
+    noteBorderColor: '#c8961b',
+    sequenceNumberColor: '#fff',
+  },
+  flowchart: {
+    htmlLabels: true,
+    curve: 'basis',
+  },
+  securityLevel: 'loose',
+});
+
+const rendered = new Set();
+async function renderMermaidInPane(pane) {
+  const containers = pane.querySelectorAll('.mermaid[data-src]');
+  for (const c of containers) {
+    const id = c.dataset.src;
+    if (rendered.has(id)) continue;
+    const src = document.getElementById(id);
+    if (!src) continue;
+    const code = src.textContent.trim();
+    try {
+      const { svg } = await mermaid.render('m-' + id, code);
+      c.innerHTML = svg;
+      rendered.add(id);
+    } catch (e) {
+      c.innerHTML = '<pre style="color:#a33;font-size:12px;white-space:pre-wrap">' +
+        (e.message || e) + '</pre>';
+      console.error(e);
+    }
+  }
+}
+
+// Initial render: visible pane
+const initialPane = document.querySelector('.flow-pane.active');
+if (initialPane) await renderMermaidInPane(initialPane);
+
+// Flow switching
+const nav = document.getElementById('flow-nav');
+const panes = document.querySelectorAll('.flow-pane');
+nav.addEventListener('click', async (e) => {
+  const item = e.target.closest('.nav-item');
+  if (!item) return;
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  item.classList.add('active');
+  const key = item.dataset.flow;
+  panes.forEach(p => p.classList.toggle('active', p.dataset.flow === key));
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (history.replaceState) history.replaceState(null, '', '#' + key);
+  const newPane = document.querySelector(`.flow-pane[data-flow="${key}"]`);
+  if (newPane) await renderMermaidInPane(newPane);
+});
+
+// Diagram view tabs (flow / seq)
+document.querySelectorAll('.dtabs').forEach(group => {
+  group.addEventListener('click', (e) => {
+    const tab = e.target.closest('.dtab');
+    if (!tab) return;
+    const article = tab.closest('article');
+    const view = tab.dataset.view;
+    article.querySelectorAll('.dtab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    article.querySelectorAll('.dview').forEach(v => v.classList.toggle('active', v.dataset.view === view));
+  });
+});
+
+// Open from hash
+const hash = location.hash.replace('#','');
+if (hash) {
+  const target = document.querySelector(`.nav-item[data-flow="${hash}"]`);
+  if (target) target.click();
+}
+</script>
+</body>
+</html>
