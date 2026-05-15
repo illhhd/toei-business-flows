@@ -73,6 +73,12 @@ tailwind.config = {
 
   /* Mermaid overrides for subgraph (swim lanes) */
   .diagram-box .cluster rect { rx: 6; ry: 6; }
+  /* Sequence diagram arrow visibility: thicker strokes, sharper contrast */
+  .diagram-box .messageLine0 { stroke: #1a2440 !important; stroke-width: 1.8 !important; }
+  .diagram-box .messageLine1 { stroke: #5a6478 !important; stroke-width: 1.6 !important; }
+  .diagram-box .actor-line { stroke: #c8d4e6 !important; stroke-width: 1.5 !important; }
+  .diagram-box marker path { fill: #1a2440 !important; }
+  .diagram-box text.sequenceNumber { font-weight: 700 !important; }
 
   /* Details */
   details[open] summary .toggle-icon { transform: rotate(45deg); }
@@ -422,19 +428,20 @@ sequenceDiagram
   participant DR as 乗務員
   participant H as 病院
   participant N as NASVA
-  O->>O: 日程調整（健診1年/適性3年）
-  O->>DP: 実施日候補を共有
-  DP->>DP: 乗務員予定確認→日付決定
-  DP->>H: 健康診断予約
-  DP->>N: 適性診断予約
-  DP->>DP: 点呼簿/予定に反映
-  DP->>DR: 業務確認電話（日程連絡）
-  DR->>DR: 持ち物準備（適性診断のみ）
+  Note over O,DP: 周期 ─ 健診: 1年毎 / 適性: 3年毎
+  O->>DP: 健診・適性の実施を依頼
+  DP->>DR: 乗務員の予定を確認
+  DR-->>DP: 予定を回答
+  DP->>H: 健康診断を予約
+  DP->>N: 適性診断を予約
+  DP->>DP: 点呼簿・予定に反映
+  DP->>DR: 業務確認電話で日程連絡
+  Note right of DR: 適性診断のみ<br/>書類を準備
   DR->>H: 健康診断 受診
   DR->>N: 適性診断 受診
-  H-->>O: 健診結果
-  N-->>O: 適性診断結果
-  O->>DR: 指導（結果説明）
+  H-->>O: 健診結果を報告
+  N-->>O: 適性診断結果を報告
+  O->>DR: 結果を踏まえ指導
   O->>O: 受診・指導履歴を保管
       </script>
 
@@ -580,8 +587,9 @@ sequenceDiagram
 
       <section class="mb-10">
         <div class="section-title">ダイアグラム</div>
-        <div class="dtabs"><div class="dtab active" data-view="flow">工程フロー（スイムレーン）</div></div>
+        <div class="dtabs"><div class="dtab active" data-view="flow">工程フロー（スイムレーン）</div><div class="dtab" data-view="seq">シーケンス図</div></div>
         <div class="dview active" data-view="flow"><div class="diagram-box"><div class="mermaid" data-src="inspection-flow"></div></div></div>
+        <div class="dview" data-view="seq"><div class="diagram-box"><div class="mermaid" data-src="inspection-seq"></div></div></div>
       </section>
 
       <script type="application/mermaid" id="inspection-flow">
@@ -633,6 +641,32 @@ flowchart LR
   DP4 --> O3
       </script>
 
+      <script type="application/mermaid" id="inspection-seq">
+sequenceDiagram
+  autonumber
+  participant O as 車両運行担当
+  participant DP as 配車担当
+  participant DR as 乗務員
+  participant H as 日野自動車
+  participant M as 整備担当
+  O->>DP: 点検対象車両を通知
+  alt 車検
+    DP->>H: 次長・課長と日程調整
+    H-->>DP: 日程確定
+  else 3ヶ月点検
+    DP->>DP: 配車担当が日程決定
+  end
+  DP->>DP: 点呼簿に反映 (全営業所へ FAX)
+  DP->>DR: 業務確認電話で日程連絡
+  DR->>H: バスを持参 (車検)
+  DR->>M: バスを持参 (3ヶ月点検)
+  H-->>DP: 車検完了
+  M-->>DP: 3ヶ月点検完了
+  DP->>DP: 点検表へ入力 (○・期限・有効期限)
+  DP->>O: 書類を引き渡し
+  O->>O: 書類を保管
+      </script>
+
       <section class="mb-10">
         <div class="section-title">工程ごとのタスク</div>
         <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -662,8 +696,9 @@ flowchart LR
 
       <section class="mb-10">
         <div class="section-title">ダイアグラム</div>
-        <div class="dtabs"><div class="dtab active" data-view="flow">工程フロー（スイムレーン）</div></div>
+        <div class="dtabs"><div class="dtab active" data-view="flow">工程フロー（スイムレーン）</div><div class="dtab" data-view="seq">シーケンス図</div></div>
         <div class="dview active" data-view="flow"><div class="diagram-box"><div class="mermaid" data-src="cleaning-flow"></div></div></div>
+        <div class="dview" data-view="seq"><div class="diagram-box"><div class="mermaid" data-src="cleaning-seq"></div></div></div>
       </section>
 
       <script type="application/mermaid" id="cleaning-flow">
@@ -701,6 +736,29 @@ flowchart LR
   O1 -. 指示 .-> M1
   DR1 -. 完了表 .-> O2
   M1 -. 完了表 .-> O2
+      </script>
+
+      <script type="application/mermaid" id="cleaning-seq">
+sequenceDiagram
+  autonumber
+  participant DP as 配車担当
+  participant O as 車両運行担当
+  participant DR as 乗務員
+  participant M as 整備担当
+  DP->>DP: 業務状況から日程を決定
+  DP->>DP: 点呼簿に反映
+  DP->>O: 実施日を共有
+  O->>DR: 業務確認電話 (清掃日連絡)
+  O->>M: 業務確認電話 (コロナ対策日連絡)
+  par 通常清掃
+    DR->>DR: 車内清掃を実施
+    DR-->>O: 清掃完了表を提出
+  and コロナ対策
+    M->>M: コロナ対策作業を実施
+    M-->>O: コロナ対策完了表を提出
+  end
+  O->>O: 表をチェック・車両を保管
+  O->>O: コロナ対策表を各営業所へ FAX
       </script>
 
       <section class="mb-10">
